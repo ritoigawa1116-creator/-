@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1923">
+<title>民泊クリーンアップ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1923;
+  --surface:#1a2535;
+  --surface2:#222f40;
+  --border:#2d3f52;
+  --text:#e8edf2;
+  --text2:#7a90a4;
+  --text3:#4a6070;
+  --accent:#3dd68c;
+  --accent2:#1fa866;
+  --warn:#f5a623;
+  --danger:#e05a5a;
+  --blue:#4a9eff;
+  --purple:#9b7fe8;
+  --radius:12px;
+  --radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:14px;overflow-x:hidden}
+body{padding-bottom:80px}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,#0f1923 0%,#1a2535 100%);
+  border-bottom:1px solid var(--border);
+  padding:16px 16px 12px;
+  position:sticky;top:0;z-index:50;
+}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.logo-sub{font-size:10px;color:var(--text2);font-family:'DM Mono',monospace;letter-spacing:.5px}
+.meta-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s}
+.meta-btn:active{transform:scale(.96)}
+.meta-info{font-size:11px;color:var(--text2);margin-bottom:8px;min-height:15px}
+.meta-info span{color:var(--text);font-weight:500}
+
+/* PROGRESS */
+.progress-row{display:flex;align-items:center;gap:10px}
+.progress-track{flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:99px;transition:width .4s cubic-bezier(.34,1.56,.64,1)}
+.progress-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);white-space:nowrap}
+
+/* STEP CARDS */
+.steps{padding:10px 12px 0}
+.step-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  margin-bottom:8px;
+  overflow:hidden;
+  transition:border-color .2s;
+}
+.step-card.complete{border-color:var(--accent2)}
+.step-head{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;cursor:pointer;
+  user-select:none;transition:background .1s;
+}
+.step-head:active{background:var(--surface2)}
+.step-num{
+  font-family:'DM Mono',monospace;font-size:10px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text2);padding:3px 7px;border-radius:4px;
+  flex-shrink:0;letter-spacing:.5px;
+}
+.step-card.complete .step-num{background:rgba(61,214,140,.1);border-color:var(--accent2);color:var(--accent)}
+.step-emoji{font-size:18px;flex-shrink:0}
+.step-info{flex:1;min-width:0}
+.step-name{font-size:13px;font-weight:700;line-height:1.3}
+.step-count{font-size:10px;color:var(--text2);margin-top:2px}
+.step-badge{
+  font-size:10px;padding:3px 8px;border-radius:99px;
+  font-family:'DM Mono',monospace;font-weight:500;white-space:nowrap;flex-shrink:0;
+}
+.badge-none{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+.badge-part{background:rgba(245,166,35,.12);color:var(--warn);border:1px solid rgba(245,166,35,.3)}
+.badge-done{background:rgba(61,214,140,.12);color:var(--accent);border:1px solid rgba(61,214,140,.3)}
+.chevron{color:var(--text3);font-size:12px;transition:transform .2s;flex-shrink:0}
+.chevron.open{transform:rotate(180deg)}
+
+/* ITEMS */
+.step-body{border-top:1px solid var(--border)}
+.check-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 14px;border-bottom:1px solid rgba(45,63,82,.6);
+  cursor:pointer;transition:background .1s;
+}
+.check-item:last-of-type{border-bottom:none}
+.check-item:active{background:var(--surface2)}
+.check-item.done{background:rgba(61,214,140,.03)}
+.cb{
+  width:22px;height:22px;border-radius:6px;
+  border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;transition:all .15s;
+  background:var(--surface);
+}
+.cb.on{background:var(--accent);border-color:var(--accent)}
+.cb.on::after{content:'✓';color:#0f1923;font-size:13px;font-weight:700}
+.item-text{flex:1;min-width:0}
+.item-label{font-size:13px;line-height:1.5;transition:color .15s}
+.item-label.done-txt{color:var(--text3);text-decoration:line-through}
+.item-note{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* PHOTO ZONE */
+.photo-zone{
+  padding:10px 14px 12px;
+  background:rgba(0,0,0,.2);
+  border-top:1px solid var(--border);
+}
+.photo-zone-label{
+  font-size:11px;color:var(--text2);margin-bottom:8px;
+  display:flex;align-items:center;gap:5px;
+}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.photo-thumb{
+  aspect-ratio:1;border-radius:var(--radius-sm);
+  overflow:hidden;position:relative;
+  background:var(--surface2);border:1px solid var(--border);
+}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.del-photo{
+  position:absolute;top:3px;right:3px;
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(0,0,0,.7);color:#fff;
+  border:none;font-size:12px;line-height:1;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.add-photo{
+  aspect-ratio:1;border-radius:var(--radius-sm);
+  border:1.5px dashed var(--border);background:transparent;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;color:var(--text2);font-size:10px;
+  transition:border-color .15s,color .15s;
+}
+.add-photo:active{border-color:var(--accent);color:var(--accent)}
+.add-photo-icon{font-size:22px;line-height:1}
+.note-input{
+  width:100%;padding:8px 10px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);
+  font-size:12px;font-family:'Noto Sans JP',sans-serif;
+  resize:none;outline:none;transition:border-color .15s;
+  line-height:1.6;
+}
+.note-input::placeholder{color:var(--text3)}
+.note-input:focus{border-color:var(--blue)}
+
+/* BOTTOM BAR */
+.bottom-bar{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(15,25,35,.95);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--border);
+  padding:10px 12px;
+  display:flex;gap:8px;
+}
+.btn{
+  flex:1;padding:13px;border-radius:var(--radius);
+  font-size:14px;font-weight:700;
+  font-family:'Noto Sans JP',sans-serif;
+  cursor:pointer;border:none;
+  transition:all .15s;letter-spacing:.3px;
+}
+.btn:active{transform:scale(.97)}
+.btn-sub{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.btn-main{background:var(--accent);color:#0f1923}
+
+/* MODAL */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);
+  z-index:100;display:none;
+  align-items:flex-end;justify-content:center;
+}
+.overlay.show{display:flex}
+.overlay.center{align-items:center;padding:20px}
+.sheet{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius) var(--radius) 0 0;
+  padding:20px 16px 36px;width:100%;
+  max-height:85vh;overflow-y:auto;
+}
+.sheet.center{border-radius:var(--radius);max-width:380px;max-height:80vh}
+.sheet h2{font-size:16px;font-weight:700;margin-bottom:4px}
+.sheet p{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;color:var(--text2);margin-bottom:4px;letter-spacing:.5px}
+.field input{
+  width:100%;padding:10px 12px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);
+  font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none;
+}
+.field input:focus{border-color:var(--blue)}
+.btn-row{display:flex;gap:8px;margin-top:14px}
+.btn-row button{
+  flex:1;padding:11px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans JP',sans-serif;transition:all .15s;border:none;
+}
+.btn-row button:active{transform:scale(.97)}
+.btn-cancel{background:var(--surface2);color:var(--text2);border:1px solid var(--border)!important}
+.btn-save{background:var(--accent);color:#0f1923}
+.btn-copy{background:var(--blue);color:#fff}
+
+/* REPORT */
+.report-box{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px;
+  font-family:'DM Mono',monospace;font-size:11px;
+  line-height:1.9;color:var(--text);
+  white-space:pre-wrap;max-height:320px;
+  overflow-y:auto;word-break:break-all;
+}
+
+/* COMPLETE BANNER */
+.complete-banner{
+  margin:8px 12px 0;
+  background:rgba(61,214,140,.08);
+  border:1px solid rgba(61,214,140,.3);
+  border-radius:var(--radius);padding:12px 14px;
+  display:flex;align-items:center;gap:10px;
+  display:none;
+}
+.complete-banner.show{display:flex}
+.banner-icon{font-size:22px}
+.banner-text{font-size:13px;font-weight:700;color:var(--accent)}
+.banner-sub{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">🏠</div>
+      <div>
+        <div class="logo-text">民泊クリーンアップ</div>
+        <div class="logo-sub">MINPAKU CLEANUP</div>
+      </div>
+    </div>
+    <button class="meta-btn" onclick="openMeta()">✏️ 物件情報</button>
+  </div>
+  <div class="meta-info" id="meta-line">物件・担当者を入力してください</div>
+  <div class="progress-row">
+    <div class="progress-track"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+    <div class="progress-count" id="prog-label">0/0</div>
+  </div>
+</header>
+
+<div class="complete-banner" id="banner">
+  <div class="banner-icon">🎉</div>
+  <div>
+    <div class="banner-text">全項目チェック完了！</div>
+    <div class="banner-sub">報告書を作成して管理者に送りましょう</div>
+  </div>
+</div>
+
+<div class="steps" id="root"></div>
+
+<div class="bottom-bar">
+  <button class="btn btn-sub" onclick="resetAll()">🔄 リセット</button>
+  <button class="btn btn-main" onclick="openReport()">📋 報告書を作成</button>
+</div>
+
+<!-- META MODAL -->
+<div class="overlay center" id="ov-meta">
+  <div class="sheet center">
+    <h2>📍 物件・担当者情報</h2>
+    <p>入力した内容は報告書に記載されます</p>
+    <div class="field"><label>物件名・部屋番号</label><input id="f-prop" placeholder="例：青空荘 101号室"></div>
+    <div class="field"><label>担当者名</label><input id="f-staff" placeholder="例：田中 花子"></div>
+    <div class="field"><label>作業日</label><input id="f-date" type="date"></div>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeModal('ov-meta')">キャンセル</button>
+      <button class="btn-save" onclick="saveMeta()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="overlay" id="ov-report">
+  <div class="sheet">
+    <h2>📋 作業報告書</h2>
+    <p>コピーしてLINEまたはメールに貼り付けてください</p>
+    <div class="report-box" id="report-content"></div>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeModal('ov-report')">閉じる</button>
+      <button class="btn-copy" id="copy-btn" onclick="copyReport()">📋 コピー</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STEPS=[
+  {id:'s1',emoji:'🔑',num:'STEP 01',title:'作業開始前の準備',items:[
+    {t:'清掃用具一式（モップ・雑巾・ブラシ）がある',n:'不足時は管理者へ連絡'},
+    {t:'洗剤・消臭スプレー・カビ取り剤が揃っている'},
+    {t:'ゴミ袋（大・小）を十分に持参した'},
+    {t:'リネン・シーツ交換用品がある',n:'枚数を事前確認'},
+    {t:'アメニティ補充セットがある',n:'シャンプー・石鹸・歯ブラシ等'},
+    {t:'スマートフォンの充電は十分か（写真撮影用）'},
+    {t:'鍵またはスマートロックのコードを確認した'},
+    {t:'室内に異臭・異常（煙・水漏れ等）がないか確認した',n:'異常時は作業中断し即報告'},
+    {t:'電気・水道が使える状態か確認した'},
+  ],photo:false},
+  {id:'s2',emoji:'🗑️',num:'STEP 02',title:'ゴミ処理・リネン交換',items:[
+    {t:'全室のゴミを収集した'},
+    {t:'ゴミを分別し所定の場所に搬出した',n:'自治体ルールに従う'},
+    {t:'ゴミ箱を消毒し新しいビニール袋を設置した'},
+    {t:'使用済みシーツ・枕カバーを取り外し回収した'},
+    {t:'新しいシーツをベッドメイキングした（しわなく）'},
+    {t:'新しい枕カバーを装着した'},
+    {t:'バスタオル・フェイスタオルを補充した',n:'各2枚以上'},
+    {t:'バスマットを交換または乾燥・消臭した'},
+  ],photo:true,photoLabel:'📸 リネン交換完了後の写真'},
+  {id:'s3',emoji:'🧹',num:'STEP 03',title:'清掃・掃除',items:[
+    {t:'トイレの便器（内外・フタ裏）を洗浄・消毒した'},
+    {t:'トイレの床・壁の拭き掃除をした'},
+    {t:'洗面台（蛇口・鏡・シンク）を磨いた',n:'水垢・歯磨き粉汚れ注意'},
+    {t:'浴槽・シャワーヘッド・壁面を洗浄した',n:'石鹸カス・カビ注意'},
+    {t:'排水口の髪の毛・ゴミを取り除いた'},
+    {t:'コンロ・五徳の油汚れを拭き取った'},
+    {t:'電子レンジ・冷蔵庫の内外を拭いた'},
+    {t:'全室の掃除機がけをした（ソファ・カーペット含む）'},
+    {t:'床のモップがけをした（フローリング）'},
+    {t:'テーブル・棚・照明器具のホコリを拭いた'},
+    {t:'窓ガラス・サッシを拭いた',n:'指紋・汚れ確認'},
+  ],photo:true,photoLabel:'📸 清掃完了後の写真'},
+  {id:'s4',emoji:'🧴',num:'STEP 04',title:'備品・アメニティ補充',items:[
+    {t:'シャンプー・コンディショナーを補充した',n:'残量1/3以下で交換'},
+    {t:'ボディソープ・石鹸を補充した'},
+    {t:'トイレットペーパーを補充した（予備含む）',n:'2ロール以上'},
+    {t:'ティッシュペーパーを補充した'},
+    {t:'歯ブラシ・歯磨き粉セットを補充した（使い捨て）',n:'人数分'},
+    {t:'食器用洗剤・スポンジを補充した'},
+    {t:'Wi-Fiルーターが点灯し使用可能か確認した'},
+    {t:'リモコンの電池・スマートロックの充電を確認した',n:'20%以下は管理者に報告'},
+  ],photo:false},
+  {id:'s5',emoji:'⚠️',num:'STEP 05',title:'設備・破損チェック',items:[
+    {t:'エアコンの冷暖房が動作するか確認した'},
+    {t:'照明（全室）が点灯するか確認した'},
+    {t:'給湯器・お湯が出るか確認した'},
+    {t:'壁・天井・床に傷・汚れがないか確認した',n:'発見→写真撮影＋即報告'},
+    {t:'家具・ガラス類に破損がないか確認した',n:'発見→写真撮影＋即報告'},
+    {t:'クローゼット・引き出し内の忘れ物を確認した',n:'発見時は触らず管理者へ連絡'},
+  ],photo:true,photoLabel:'📸 破損・異常箇所の写真（問題なければ不要）'},
+  {id:'s6',emoji:'📸',num:'STEP 06',title:'写真撮影・退出',items:[
+    {t:'玄関・廊下の全景写真を撮影した'},
+    {t:'リビング・居室の全景写真を撮影した'},
+    {t:'ベッドメイキング完了後の写真を撮影した'},
+    {t:'バスルーム・トイレの写真を撮影した'},
+    {t:'キッチンの写真を撮影した'},
+    {t:'アメニティ補充後の写真を撮影した'},
+    {t:'全照明を消灯した'},
+    {t:'全ての窓・ドアを施錠した'},
+    {t:'鍵（スマートロック含む）を元に戻した'},
+  ],photo:true,photoLabel:'📸 退出前の最終確認写真'},
+];
+
+let S={
+  meta:{property:'',staff:'',date:''},
+  checks:{},
+  notes:{},
+  photos:{},
+  open:Object.fromEntries(STEPS.map((s,i)=>[s.id,i===0]))
+};
+
+function save(){try{localStorage.setItem('minpaku_v2',JSON.stringify(S))}catch(e){}}
+function load(){try{const d=localStorage.getItem('minpaku_v2');if(d)S=JSON.parse(d)}catch(e){}}
+load();
+
+function totals(){
+  let t=0,d=0;
+  STEPS.forEach(s=>{t+=s.items.length;s.items.forEach((_,i)=>{if(S.checks[s.id+'-'+i])d++;});});
+  return{t,d};
+}
+function stepTotals(sid){
+  const s=STEPS.find(x=>x.id===sid);
+  const d=s.items.filter((_,i)=>S.checks[sid+'-'+i]).length;
+  return{d,t:s.items.length};
+}
+
+function render(){
+  const{t,d}=totals();
+  const pct=t?Math.round(d/t*100):0;
+  document.getElementById('prog').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=d+'/'+t;
+  const m=S.meta;
+  document.getElementById('meta-line').innerHTML=
+    (m.property||m.staff||m.date)?
+    [m.property&&`<span>${m.property}</span>`,m.staff&&`<span>${m.staff}</span>`,m.date&&`<span>${m.date}</span>`].filter(Boolean).join(' <span style="color:var(--text3)">／</span> ')
+    :'物件・担当者を入力してください';
+  document.getElementById('banner').className='complete-banner'+(d===t&&t>0?' show':'');
+
+  const root=document.getElementById('root');
+  root.innerHTML='';
+  STEPS.forEach(s=>{
+    const{d:sd,t:st}=stepTotals(s.id);
+    const allDone=sd===st;
+    const open=S.open[s.id];
+    const card=document.createElement('div');
+    card.className='step-card'+(allDone?' complete':'');
+
+    const badgeCls=sd===0?'badge-none':allDone?'badge-done':'badge-part';
+    const badgeTxt=allDone?'✓ 完了':(sd===0?'未着手':sd+'/'+st);
+
+    card.innerHTML=`
+      <div class="step-head" onclick="toggleStep('${s.id}')">
+        <span class="step-num">${s.num}</span>
+        <span class="step-emoji">${s.emoji}</span>
+        <div class="step-info">
+          <div class="step-name">${s.title}</div>
+          <div class="step-count">${st}項目</div>
+        </div>
+        <span class="step-badge ${badgeCls}">${badgeTxt}</span>
+        <span class="chevron${open?' open':''}">▼</span>
+      </div>`;
+
+    if(open){
+      const body=document.createElement('div');
+      body.className='step-body';
+
+      s.items.forEach((item,i)=>{
+        const key=s.id+'-'+i;
+        const ck=S.checks[key];
+        const row=document.createElement('div');
+        row.className='check-item'+(ck?' done':'');
+        row.innerHTML=`
+          <div class="cb${ck?' on':''}"></div>
+          <div class="item-text">
+            <div class="item-label${ck?' done-txt':''}">${item.t}</div>
+            ${item.n?`<div class="item-note">${item.n}</div>`:''}
+          </div>`;
+        row.onclick=()=>{S.checks[key]=!S.checks[key];save();render();};
+        body.appendChild(row);
+      });
+
+      if(s.photo){
+        const pz=document.createElement('div');
+        pz.className='photo-zone';
+        const photos=S.photos[s.id]||[];
+        const noteVal=S.notes[s.id]||'';
+        pz.innerHTML=`
+          <div class="photo-zone-label">${s.photoLabel||'📸 写真を追加'}</div>
+          <div class="photo-grid" id="pg-${s.id}"></div>
+          <textarea class="note-input" rows="2" placeholder="メモ・特記事項を入力..." id="note-${s.id}">${noteVal}</textarea>`;
+        body.appendChild(pz);
+
+        setTimeout(()=>{
+          const grid=document.getElementById('pg-'+s.id);
+          if(!grid)return;
+          photos.forEach((src,pi)=>{
+            const th=document.createElement('div');
+            th.className='photo-thumb';
+            th.innerHTML=`<img src="${src}" loading="lazy"><button class="del-photo" onclick="delPhoto(event,'${s.id}',${pi})">✕</button>`;
+            grid.appendChild(th);
+          });
+          const lbl=document.createElement('label');
+          lbl.className='add-photo';
+          lbl.innerHTML=`<span class="add-photo-icon">📷</span><span>追加</span>`;
+          const inp=document.createElement('input');
+          inp.type='file';inp.accept='image/*';inp.capture='environment';
+          inp.style.display='none';
+          inp.onchange=e=>addPhoto(s.id,e);
+          lbl.appendChild(inp);
+          grid.appendChild(lbl);
+
+          const noteEl=document.getElementById('note-'+s.id);
+          if(noteEl)noteEl.oninput=e=>{S.notes[s.id]=e.target.value;save();};
+        },10);
+      }
+      card.appendChild(body);
+    }
+    root.appendChild(card);
+  });
+}
+
+function toggleStep(sid){S.open[sid]=!S.open[sid];save();render();}
+
+function addPhoto(sid,e){
+  const file=e.target.files[0];if(!file)return;
+  if(file.size>5*1024*1024){alert('5MB以下の写真を選択してください');return;}
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    if(!S.photos[sid])S.photos[sid]=[];
+    // Compress image
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const maxW=800;
+      const ratio=Math.min(maxW/img.width,maxW/img.height,1);
+      canvas.width=Math.round(img.width*ratio);
+      canvas.height=Math.round(img.height*ratio);
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      S.photos[sid].push(canvas.toDataURL('image/jpeg',.7));
+      save();render();
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function delPhoto(e,sid,pi){
+  e.stopPropagation();
+  if(confirm('この写真を削除しますか？')){
+    S.photos[sid].splice(pi,1);save();render();
+  }
+}
+
+function openMeta(){
+  const m=S.meta;
+  document.getElementById('f-prop').value=m.property;
+  document.getElementById('f-staff').value=m.staff;
+  document.getElementById('f-date').value=m.date;
+  document.getElementById('ov-meta').className='overlay center show';
+}
+function saveMeta(){
+  S.meta.property=document.getElementById('f-prop').value.trim();
+  S.meta.staff=document.getElementById('f-staff').value.trim();
+  S.meta.date=document.getElementById('f-date').value;
+  save();closeModal('ov-meta');render();
+}
+function closeModal(id){document.getElementById(id).className='overlay';}
+
+function openReport(){
+  const{t,d}=totals();
+  const m=S.meta;
+  const now=new Date();
+  const dateStr=m.date||(now.getFullYear()+'/'+(now.getMonth()+1).toString().padStart(2,'0')+'/'+now.getDate().toString().padStart(2,'0'));
+  const pct=t?Math.round(d/t*100):0;
+  let lines=[];
+  lines.push('【民泊退去後クリーンアップ 作業報告書】');
+  lines.push('━━━━━━━━━━━━━━━━');
+  lines.push('📍 物件名　：'+(m.property||'（未入力）'));
+  lines.push('👤 担当者　：'+(m.staff||'（未入力）'));
+  lines.push('📅 作業日　：'+dateStr);
+  lines.push('✅ 進捗　　：'+d+' / '+t+' 項目（'+pct+'%）');
+  lines.push('');
+  STEPS.forEach(s=>{
+    const{d:sd,t:st}=stepTotals(s.id);
+    const status=sd===st?'✅':sd===0?'⬜':'🔄';
+    lines.push(status+' '+s.num+' '+s.title+'（'+sd+'/'+st+'）');
+    const undone=s.items.filter((_,i)=>!S.checks[s.id+'-'+i]);
+    undone.forEach(u=>lines.push('  ⚠ 未完了：'+u.t));
+    if(S.notes[s.id]&&S.notes[s.id].trim()){
+      lines.push('  📝 メモ：'+S.notes[s.id].trim());
+    }
+    const pc=(S.photos[s.id]||[]).length;
+    if(pc>0)lines.push('  📸 写真：'+pc+'枚添付');
+  });
+  lines.push('');
+  lines.push('━━━━━━━━━━━━━━━━');
+  lines.push('以上、ご確認をお願いいたします。');
+  document.getElementById('report-content').textContent=lines.join('\n');
+  document.getElementById('ov-report').className='overlay show';
+}
+
+function copyReport(){
+  const txt=document.getElementById('report-content').textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn=document.getElementById('copy-btn');
+    btn.textContent='✅ コピーしました';
+    setTimeout(()=>{btn.textContent='📋 コピー';},2500);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=document.getElementById('report-content').textContent;
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    alert('コピーしました！');
+  });
+}
+
+function resetAll(){
+  if(!confirm('チェックをすべてリセットしますか？\n（写真・メモも削除されます）'))return;
+  S.checks={};S.notes={};S.photos={};
+  save();render();
+}
+
+// Close modal on backdrop click
+document.querySelectorAll('.overlay').forEach(ov=>{
+  ov.addEventListener('click',e=>{if(e.target===ov)closeModal(ov.id);});
+});
+
+render();
+</script>
+</body>
+</html>
